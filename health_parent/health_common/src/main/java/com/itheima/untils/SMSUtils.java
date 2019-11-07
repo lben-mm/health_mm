@@ -14,7 +14,8 @@ import com.aliyuncs.profile.IClientProfile;
  */
 public class SMSUtils {
 	public static final String VALIDATE_CODE = "SMS_176937990";//发送短信验证码 体检预约的时候
-	public static final String ORDER_NOTICE = "SMS_176927996";//体检预约成功通知
+	public static final String Login_Code= "SMS_176912983"; //发送登录验证码
+	public static final String ORDER_NOTICE = "SMS_176944003";//体检预约成功通知
 
 	/**
 	 * 发送短信

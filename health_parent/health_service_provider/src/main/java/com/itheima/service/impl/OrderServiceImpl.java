@@ -69,7 +69,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = new Order();
         order.setMemberId(memId);
         order.setOrderDate(new SimpleDateFormat("yyyy-MM-dd").parse((String) map.get("orderDate")));
-        order.setOrderType(Order.ORDERTYPE_WEIXIN);
+        order.setOrderType(String.valueOf(map.get("orderType")));
         order.setOrderStatus(Order.ORDERSTATUS_NO);
         order.setSetmealId(Integer.parseInt((String) map.get("setmealId")));
         orderDao.insertOrder(order);
