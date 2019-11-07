@@ -7,7 +7,7 @@
             <selectKey keyProperty="id" resultType="int" order="AFTER">
                 select LAST_INSERT_ID()
             </selectKey>
-            insert into t_member (name,sex,idCard,phoneNumber,regTime) value(#{name},#{sex},#{idCard},#{phoneNumber},#{regTime})
+            insert into t_member (name,sex,idCard,phoneNumber,regTime) values(#{name},#{sex},#{idCard},#{phoneNumber},#{regTime})
         </insert>
     <!--添加t_order-->
     <insert id="insertOrder" parameterType="Order">

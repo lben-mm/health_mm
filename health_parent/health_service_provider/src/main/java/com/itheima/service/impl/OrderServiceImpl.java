@@ -9,6 +9,7 @@ import com.itheima.domain.OrderInfo;
 import com.itheima.domain.OrderSetting;
 import com.itheima.entity.Result;
 import com.itheima.service.OrderService;
+import com.itheima.untils.MD5Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
             mem.setSex((String) map.get("sex"));
             mem.setIdCard((String) map.get("idCard"));
             mem.setPhoneNumber((String) map.get("telephone"));
-            mem.setRegTime(new SimpleDateFormat("yyyy-MM-dd").parse((String) map.get("orderDate")));
+            mem.setRegTime(new Date());
             orderDao.saveMember(mem);
             memId = mem.getId();
         } else {
@@ -86,5 +87,28 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderInfo findOrderInfoById(Integer id) {
         return orderDao.findOrderInfoById(id);
+    }
+
+    @Override
+    public Member addMember(Map map) {
+        //判断登录用户是否为会员
+        Member member = orderDao.findByPhoneNumber(String.valueOf(map.get("telephone")));
+        if (member != null) {
+            //是会员, 直接返回
+            return member;
+        } else {
+            //不是会员 注册会员
+            member = new Member();
+            //进行密码密文处理
+            String password = (String) map.get("password");
+            if (password != null){
+                password = MD5Utils.md5(password);
+                member.setPhoneNumber(password);
+            }
+            member.setPhoneNumber(String.valueOf(map.get("telephone")));
+            member.setRegTime(new Date());
+            orderDao.saveMember(member);
+        }
+        return member;
     }
 }

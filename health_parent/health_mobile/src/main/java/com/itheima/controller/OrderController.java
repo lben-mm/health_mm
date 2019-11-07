@@ -1,9 +1,11 @@
 package com.itheima.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.alibaba.fastjson.JSON;
 import com.aliyuncs.exceptions.ClientException;
 import com.itheima.constant.MessageConstant;
 import com.itheima.constant.RedisMessageConstant;
+import com.itheima.domain.Member;
 import com.itheima.domain.Order;
 import com.itheima.domain.OrderInfo;
 import com.itheima.entity.Result;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import redis.clients.jedis.JedisPool;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 /**
@@ -67,14 +71,16 @@ public class OrderController {
             //验证码不正确
             return new Result(false, MessageConstant.VALIDATECODE_ERROR);
         }
+        //验证通过 删除redis中的验证码
+        jedisPool.getResource().srem(telephone + RedisMessageConstant.SENDTYPE_ORDER);
         Result result = null;
         try {
             //调用业务层
             map.put("orderType", Order.ORDERTYPE_WEIXIN);
             result = orderService.orderSet(map);
             //进行短信通知
-            if (result.isFlag()){
-                SMSUtils.sendShortMessage(SMSUtils.ORDER_NOTICE,telephone, String.valueOf(map.get("orderDate")));
+            if (result.isFlag()) {
+                SMSUtils.sendShortMessage(SMSUtils.ORDER_NOTICE, telephone, String.valueOf(map.get("orderDate")));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -109,7 +115,7 @@ public class OrderController {
 
     //登录验证
     @RequestMapping("/login")
-    public Result login(@RequestBody Map map) {
+    public Result login(@RequestBody Map<String,String> map, HttpServletResponse response) {
         //进行验证码判断
         String validateCode = (String) map.get("validateCode");
         String telephone = (String) map.get("telephone");
@@ -118,8 +124,24 @@ public class OrderController {
             return new Result(false, MessageConstant.VALIDATECODE_ERROR);
 
         }
+        //验证通过 删除redis中的验证码
+        jedisPool.getResource().srem(telephone + RedisMessageConstant.SENDTYPE_LOGIN);
+        //对登录用户进行会员判断
+        Member member = orderService.addMember(map);
+        //登录用户为会员
+        //响应cookie
+        Cookie cookie = new Cookie("login_telephone_code", telephone);
+        //设置cookie
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 60 * 24 * 30);
+        //回显cookie
+        response.addCookie(cookie);
+        //将会员的相关信息存入redis中
+        jedisPool.getResource().setex(telephone,60*60, JSON.toJSONString(member));
+        jedisPool.getResource().setex("login_telephone_code",60*60, String.valueOf(member.getId()));
 
-        return new Result(true,"欢迎登录");
+
+        return new Result(true, "欢迎登录");
 
     }
 

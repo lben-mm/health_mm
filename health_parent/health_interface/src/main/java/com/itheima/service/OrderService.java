@@ -1,5 +1,6 @@
 package com.itheima.service;
 
+import com.itheima.domain.Member;
 import com.itheima.domain.OrderInfo;
 import com.itheima.entity.Result;
 
@@ -10,4 +11,6 @@ public interface OrderService  {
     Result orderSet(Map map) throws Exception;
     //预约详情
     OrderInfo findOrderInfoById(Integer id);
+    //对登录用户进行会员判断
+    Member addMember(Map map);
 }
