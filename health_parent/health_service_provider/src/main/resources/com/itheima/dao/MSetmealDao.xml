@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.MSetmealDao">
+    <resultMap id="map" type="Setmeal">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="age" column="age"/>
+        <result property="sex" column="sex"/>
+        <result property="remark" column="remark"/>
+        <result property="img" column="img"/>
+    </resultMap>
+
+    <resultMap id="myMap" type="Setmeal" extends="map">
+
+        <collection property="checkGroups" ofType="CheckGroup">
+            <id property="id" column="tc_id"/>
+            <result property="name" column="tc_name"/>
+            <result property="remark" column="tc_remark"/>
+
+        </collection>
+    </resultMap>
+
+    <select id="findById_sg" parameterType="int" resultMap="myMap">
+    select ts.* , tc.name tc_name , tc.remark tc_remark , tc.id tc_id from t_setmeal ts left join t_setmeal_checkgroup sc on ts.id = sc.setmeal_id left join t_checkgroup tc on tc.id = sc.checkgroup_id where ts.id=#{id}
+
+</select>
+
+    <resultMap id="myMap2" type="Setmeal" extends="map">
+        <collection property="checkGroups" ofType="CheckGroup">
+            <id property="id" column="tc_id"/>
+            <result property="name" column="tc_name"/>
+            <result property="remark" column="tc_remark"/>
+            <collection property="checkItems" ofType="CheckItem">
+                <id property="id" column="tk_id"/>
+                <result property="name" column="tk_name"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="findAllById_ccs" resultMap="myMap2" parameterType="int">
+        select ts.* , tc.name tc_name , tc.remark tc_remark , tc.id tc_id , tk.id tk_id ,tk.name tk_name from
+t_setmeal ts
+left join t_setmeal_checkgroup sc on ts.id = sc.setmeal_id
+left join t_checkgroup tc on tc.id = sc.checkgroup_id
+left join t_checkgroup_checkitem cc on cc.checkgroup_id = tc.id
+left join t_checkitem  tk on tk.id = cc.checkitem_id
+where ts.id = #{id}
+    </select>
+
+
+</mapper>

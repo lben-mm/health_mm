@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>修改</title>
+    <script src="../js/vuejs-2.5.16.js"></script>
+    <script src="../js/axios-0.18.0.js"></script>
+    <script src="../js/getParameter.js"></script>
+</head>
+<body>
+<div id="app">
+    姓名：<input type="text" v-model="user.name"><br/>
+    工资：<input type="text" v-model="user.salary"><br/>
+    生日：<input type="date" v-model="user.birthday"><br/>
+    <input type="button" @click="updateEmp" value="提交">
+</div>
+</body>
+<script>
+    //view model
+    new Vue({
+        el:"#app",
+        data:{
+            user:{
+                id:"",
+                name:"",
+                salary:"",
+                birthday:""
+            }
+        },
+        methods:{
+            updateEmp:function () {
+                var _this = this;
+                axios.post("../emp/updateEmp",_this.user).then(function (response) {
+
+                })
+            },
+            findById:function () {
+                var _this = this;
+               var ids =  getParameter("id");
+                axios.get("/emp/findById",{params:{id:ids}}).then(function (response) {
+                    _this.user=response.data;
+                })
+            }
+
+        },
+        created: function () {
+            this.findById();
+        }
+
+
+
+    })
+</script>
+</html>

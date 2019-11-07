@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>查询所有</title>
+    <script src="../js/vuejs-2.5.16.js"></script>
+    <script src="../js/axios-0.18.0.js"></script>
+</head>
+<body>
+<div id="app">
+    <a href="emp_add.html">新增</a>
+    <table border="1">
+        <tr>
+            <th>id</th>
+            <th>姓名</th>
+            <th>工资</th>
+            <th>生日</th>
+            <th>修改</th>
+            <th>删除</th>
+        </tr>
+        <tr v-for="e in emp">
+            <td>{{e.id}}</td>
+            <td>{{e.name}}</td>
+            <td>{{e.salary}}</td>
+            <td>{{e.birthday}}</td>
+            <td @click="updateId(e.id)">修改</td>
+            <td @click="deleteId(e.id)">删除</td>
+        </tr>
+    </table>
+    <br>
+
+    <input type="button" value="查询所有" @click="selects">
+</div>
+<script>
+    new Vue({
+        el: "#app",
+
+        data: {
+            emp: []
+
+        },
+        methods: {
+            selects: function () {
+                var _this = this;
+                axios.get("/emp/find").then(function (response) {
+                    _this.emp = response.data;
+                })
+            },
+            updateId: function (id) {
+                location.href="updateEmp.html?id="+id;
+
+
+            },
+            deleteId: function (id) {
+                var _this = this;
+                axios.get("/emp/delete", {params: {id: id}}).then(function (response) {
+                        _this.selects();
+                })
+            }
+
+        },
+        created: function () {
+            this.selects();
+        },
+        mounted(){
+
+        }
+
+    });
+
+</script>
+</body>
+</html>

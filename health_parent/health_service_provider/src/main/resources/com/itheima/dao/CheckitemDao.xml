@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.CheckitemDao">
+    <!--添加检查项-->
+    <insert id="saveCheckItem" parameterType="CheckItem">
+        insert into t_checkitem values(#{id},#{code},#{name},#{sex},#{age},#{price},#{type},#{attention},#{remark})
+    </insert>
+    <!--分页查询-->
+    <select id="selectByPage" parameterType="string" resultType="CheckItem">
+        select * from t_checkitem
+        <where>
+            <if test="value!= null and value.length > 0">
+                code like '%${value}%'  or  name like '%${value}%'
+            </if>
+        </where>
+    </select>
+    <!--根据checkItem id 查询 t_checkgroup_checkitem-->
+    <select id="selectByCheckItemId" parameterType="int" resultType="long">
+        select count(*) from t_checkgroup_checkitem where checkitem_id = #{id}
+    </select>
+    <!--删除-->
+    <delete id="deleteById" parameterType="int">
+        delete from t_checkitem where id = #{id}
+    </delete>
+
+    <!--根据id查询-->
+    <select id="findById" parameterType="int" resultType="CheckItem">
+        select * from t_checkitem where id=#{id}
+    </select>
+
+    <!--修改-->
+    <update id="updateCheckItem" parameterType="CheckItem">
+        update t_checkitem
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="sex != null">
+                sex = #{sex},
+            </if>
+            <if test="code != null">
+                code = #{code},
+            </if>
+            <if test="age != null">
+                age = #{age},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="attention != null">
+                attention = #{attention},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="findAll" resultType="CheckItem">
+        select id,code,name,remark from t_checkitem
+    </select>
+</mapper>

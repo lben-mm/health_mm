@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.CheckgroupDao">
+    <!--分页查询-->
+    <select id="findByPage" parameterType="string" resultType="CheckGroup">
+        select * from t_checkgroup
+        <where>
+            <if test="value != null and value != '' and value.length > 0">
+                code like '%${value}%' or name like '%${value}%' or helpCode like '%${value}%'
+            </if>
+        </where>
+    </select>
+
+    <resultMap id="map" type="CheckGroup">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="helpCode" column="helpCode"/>
+        <result property="sex" column="sex"/>
+        <result property="remark" column="remark"/>
+        <result property="attention" column="attention"/>
+        <collection property="checkItems" ofType="CheckItem">
+            <id property="id" column="itemId"/>
+            <result property="name" column="itemName"/>
+        </collection>
+    </resultMap>
+    <!--分页多表查询-->
+    <select id="findByPage_cc" resultMap="map">
+        SELECT cp.*,ci.id itemId,ci.name itemName FROM t_checkgroup cp
+         LEFT JOIN t_checkgroup_checkitem cc ON cp.id = cc.checkgroup_id
+         LEFT JOIN t_checkitem ci ON ci.id = cc.checkitem_id
+        <if test="value != null and value != '' and value.length > 0">
+           where code like '%${value}%' or tg.name like '%${value}%' or helpCode like '%${value}%'
+        </if>
+    </select>
+
+    <!--添加checkGroup-->
+    <insert id="addCheckGroup" parameterType="CheckGroup">
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            select LAST_INSERT_ID()
+        </selectKey>
+        insert into t_checkgroup values(#{id},#{code},#{name},#{helpCode},#{sex},#{remark},#{attention})
+    </insert>
+
+    <!--添加表 t_checkgroup_checkitem-->
+    <insert id="add_ItemId_GroupId" parameterType="map">
+        insert into t_checkgroup_checkitem values(#{checkGroup},#{checkItem})
+    </insert>
+    <!--回显检查项复选框-->
+    <select id="findCheckBoxById" parameterType="int" resultType="int">
+        select checkitem_id from t_checkgroup_checkitem where checkgroup_id = #{id}
+    </select>
+
+    <!--回显检查组数据-->
+    <select id="findCheckGroupById" parameterType="int" resultType="CheckGroup">
+        select * from t_checkgroup where id = #{id}
+    </select>
+
+    <!--修改CheckGroup表-->
+    <update id="updateCheckGroup" parameterType="CheckGroup">
+        update t_checkgroup
+        <set>
+            <if test="code != null">
+                code = #{code},
+            </if>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="sex != null">
+                sex = #{sex},
+            </if>
+            <if test="helpCode != null">
+                helpCode = #{helpCode},
+            </if>
+            <if test="attention != null">
+                attention = #{attention},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--删除中间表关联关系-->
+    <delete id="delete_cc_ById" parameterType="int">
+        delete from t_checkgroup_checkitem where checkgroup_id = #{id}
+    </delete>
+
+    <!--删除检查组-->
+    <delete id="deleteById" parameterType="int">
+        delete from t_checkgroup where id = #{id}
+    </delete>
+
+    <!--查询中间表 t_setmeal_checkgroup -->
+    <select id="select_sc" parameterType="int" resultType="long">
+        select count(*) from t_setmeal_checkgroup where checkgroup_id = #{checkgroup_id}
+    </select>
+
+    <select id="selectCheckItem" parameterType="int" resultType="CheckItem">
+         SELECT ti.name NAME , ti.id id  FROM t_checkgroup_checkitem cc , t_checkitem ti WHERE cc.checkgroup_id = #{id} AND cc.checkitem_id = ti.id
+    </select>
+
+    <!--查询所有的检查组-->
+    <select id="findAllCheckGroup" resultType="CheckGroup">
+        select * from t_checkgroup
+    </select>
+
+
+</mapper>
